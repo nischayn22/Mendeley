@@ -1,0 +1,34 @@
+{
+	"name": "Mendeley",
+	"version": "0.1 beta",
+	"author": [
+		"Nischay Nahata",
+		"Wikiworks.com"
+	],
+	"url": "https://www.mediawiki.org/wiki/Extension:Mendeley",
+	"descriptionmsg": "mendeley-desc",
+	"license-name": "GPL-2.0-or-later",
+	"type": "parserhook",
+	"MessagesDirs": {
+		"Mendeley": [
+			"i18n"
+		]
+	},
+	"AutoloadClasses": {
+		"MendeleyHooks": "Mendeley.hooks.php",
+		"Mendeley": "Mendeley.php"
+	},
+	"config": {
+		"wgMendeleyConsumerKey": null,
+		"wgMendeleyConsumerSecret": null
+	},
+	"ExtensionMessagesFiles": {
+		"MendeleyHooksMagic": "Mendeley.i18n.magic.php"
+	},
+	"Hooks": {
+		"ParserFirstCallInit": [
+			"MendeleyHooks::onParserFirstCallInit"
+		]
+	},
+	"manifest_version": 1
+}
