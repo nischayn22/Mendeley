@@ -23,11 +23,47 @@ class MendeleyHooks {
 	public static function mendeley( Parser &$parser, $doi, $parameter ) {
 		global $wgMendeleyConsumerKey, $wgMendeleyConsumerSecret;
 
+		// Check cache first
+		$cacheProp = self::getFromCache( $parser, $doi );
+		if ( array_key_exists( $doi, $cacheProp ) && ( wfTimestamp() - $cacheProp[$doi]['ts'] ) < 3 * 24 * 3600 ) {
+			$serialized = serialize( $cacheProp );
+			$parser->getOutput()->setProperty( 'MendeleyProperties', $serialized );
+			return self::getArrayElementFromPath( $cacheProp[$doi], $parameter );
+		}
+
 		$result = httpRequest( "https://api.mendeley.com/oauth/token", "grant_type=client_credentials&scope=all&client_id=$wgMendeleyConsumerKey&client_secret=$wgMendeleyConsumerSecret" );
 		$access_token = json_decode( $result )->access_token;
-		$result = httpRequest( "https://api.mendeley.com/catalog?doi=$doi&access_token=$access_token" );
+		$result = httpRequest( "https://api.mendeley.com/catalog?doi=$doi&access_token=$access_token&view=all" );
 		$result = json_decode( $result, true )[0];
+
+		// Store in Cache
+		$result['ts'] = wfTimestamp();
+		$cacheProp[$doi] = $result;
+        $serialized = serialize( $cacheProp );
+        $parser->getOutput()->setProperty( 'MendeleyProperties', $serialized );
+
 		return self::getArrayElementFromPath( $result, $parameter );
+	}
+
+	public static function getFromCache( $parser, $doi ) {
+        $pageId = $parser->getTitle()->getArticleID();
+		$dbr = wfGetDB( DB_REPLICA );
+		$propValue = $dbr->selectField( 'page_props', // table to use
+			'pp_value', // Field to select
+			array( 'pp_page' => $pageId, 'pp_propname' => "MendeleyProperties" ), // where conditions
+			__METHOD__
+		);
+		if ( $propValue !== false ) {
+			return unserialize( $propValue );
+		}
+
+		// Try the parser object itself
+		$propValue = $parser->getOutput()->getProperty( 'MendeleyProperties' );
+		if ( $propValue !== false ) {
+			return unserialize( $propValue );
+		}
+
+		return array();
 	}
 
 	/**
