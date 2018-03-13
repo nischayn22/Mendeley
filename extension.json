@@ -14,9 +14,13 @@
 			"i18n"
 		]
 	},
+	"APIModules": {
+		"pfmendeley": "PFMendeleyAutocompleteAPI"
+	},
 	"AutoloadClasses": {
 		"MendeleyHooks": "Mendeley.hooks.php",
-		"Mendeley": "Mendeley.php"
+		"PFMendeleyInput": "PF_MendeleyInput.php",
+		"PFMendeleyAutocompleteAPI": "PFMendeleyAutocompleteAPI.php"
 	},
 	"config": {
 		"wgMendeleyConsumerKey": null,
@@ -28,7 +32,24 @@
 	"Hooks": {
 		"ParserFirstCallInit": [
 			"MendeleyHooks::onParserFirstCallInit"
+		],
+		"PageForms::FormPrinterSetup": [
+			"MendeleyHooks::onFormPrinterSetup"
 		]
+	},
+	"ResourceModules": {
+		"ext.mendeley.main": {
+			"scripts": [
+				"libs/PF_MendeleyInput.js"
+			],
+			"dependencies": [
+				"jquery.ui.autocomplete"
+			]
+		}
+	},
+	"ResourceFileModulePaths": {
+		"localBasePath": "",
+		"remoteExtPath": "Mendeley"
 	},
 	"manifest_version": 1
 }

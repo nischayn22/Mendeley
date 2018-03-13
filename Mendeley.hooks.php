@@ -8,8 +8,15 @@ class MendeleyHooks {
 	 * @param Parser $parser
 	 */
 	public static function onParserFirstCallInit( Parser &$parser ) {
-		$parser->setFunctionHook( 'mendeley',
-			'MendeleyHooks::mendeley' );
+		$parser->setFunctionHook(
+			'mendeley',
+			'MendeleyHooks::mendeley'
+		);
+
+	}
+
+	public static function onFormPrinterSetup( &$pfFormPrinter ) {
+		$pfFormPrinter->registerInputType( 'PFMendeleyInput' );
 	}
 
 	/**
@@ -21,8 +28,6 @@ class MendeleyHooks {
 	 * @return string
 	 */
 	public static function mendeley( Parser &$parser, $doi, $parameter ) {
-		global $wgMendeleyConsumerKey, $wgMendeleyConsumerSecret;
-
 		// Check cache first
 		$cacheProp = self::getFromCache( $parser, $doi );
 		if ( array_key_exists( $doi, $cacheProp ) && ( wfTimestamp() - $cacheProp[$doi]['ts'] ) < 3 * 24 * 3600 ) {
@@ -31,8 +36,8 @@ class MendeleyHooks {
 			return self::getArrayElementFromPath( $cacheProp[$doi], $parameter );
 		}
 
-		$result = httpRequest( "https://api.mendeley.com/oauth/token", "grant_type=client_credentials&scope=all&client_id=$wgMendeleyConsumerKey&client_secret=$wgMendeleyConsumerSecret" );
-		$access_token = json_decode( $result )->access_token;
+		$access_token = self::getAccessToken();
+
 		$result = httpRequest( "https://api.mendeley.com/catalog?doi=$doi&access_token=$access_token&view=all" );
 		$result = json_decode( $result, true )[0];
 
@@ -43,6 +48,12 @@ class MendeleyHooks {
         $parser->getOutput()->setProperty( 'MendeleyProperties', $serialized );
 
 		return self::getArrayElementFromPath( $result, $parameter );
+	}
+
+	public static function getAccessToken() {
+		global $wgMendeleyConsumerKey, $wgMendeleyConsumerSecret;
+		$result = httpRequest( "https://api.mendeley.com/oauth/token", "grant_type=client_credentials&scope=all&client_id=$wgMendeleyConsumerKey&client_secret=$wgMendeleyConsumerSecret" );
+		return json_decode( $result )->access_token;
 	}
 
 	public static function getFromCache( $parser, $doi ) {
