@@ -23,27 +23,47 @@ class MendeleyHooks {
 	 * Handles the mendeley parser function
 	 *
 	 * @param Parser $parser Unused
-	 * @param string $doi
-	 * @param string $parameter
 	 * @return string
 	 */
-	public static function mendeley( Parser &$parser, $doi, $parameter ) {
+	public static function mendeley( Parser &$parser ) {
+		$options = self::extractOptions( array_slice( func_get_args(), 1 ) );
+
+		$parameter = $options['parameter'];
+
+		$document_key = '';
+		if ( isset( $options['doi'] ) ) {
+			$document_key = $options['doi'];
+		} else {
+			$document_key = $options['id'];
+		}
+
 		// Check cache first
-		$cacheProp = self::getFromCache( $parser, $doi );
-		if ( array_key_exists( $doi, $cacheProp ) && ( wfTimestamp() - $cacheProp[$doi]['ts'] ) < 3 * 24 * 3600 ) {
-			$serialized = serialize( $cacheProp );
-			$parser->getOutput()->setProperty( 'MendeleyProperties', $serialized );
-			return self::getArrayElementFromPath( $cacheProp[$doi], $parameter );
+		$cacheProp = self::getFromCache( $parser, $document_key );
+		if ( array_key_exists( $document_key, $cacheProp ) && ( wfTimestamp() - $cacheProp[$document_key]['ts'] ) < 3 * 24 * 3600 ) {
+			if ( isset( $cacheProp[$document_key]['title'] ) ) {
+				$serialized = serialize( $cacheProp );
+				$parser->getOutput()->setProperty( 'MendeleyProperties', $serialized );
+				return self::getArrayElementFromPath( $cacheProp[$document_key], $parameter );
+			}
 		}
 
 		$access_token = self::getAccessToken();
 
-		$result = httpRequest( "https://api.mendeley.com/catalog?doi=$doi&access_token=$access_token&view=all" );
-		$result = json_decode( $result, true )[0];
+		$result = array();
+		if ( isset( $options['doi'] ) ) {
+			$result = httpRequest( "https://api.mendeley.com/catalog?doi=". $options['doi'] ."&access_token=$access_token&view=all" );
+			$result = json_decode( $result, true )[0];
+		} else {
+			$result = httpRequest( "https://api.mendeley.com/catalog/". $options['id'] ."?access_token=$access_token&view=all" );
+			$result = json_decode( $result, true );
+		}
 
+		if ( empty( $result ) ) {
+			return '';
+		}
 		// Store in Cache
 		$result['ts'] = wfTimestamp();
-		$cacheProp[$doi] = $result;
+		$cacheProp[$document_key] = $result;
         $serialized = serialize( $cacheProp );
         $parser->getOutput()->setProperty( 'MendeleyProperties', $serialized );
 
@@ -113,6 +133,25 @@ class MendeleyHooks {
 		return $array;
 	}
 
+
+	public static function extractOptions( array $options ) {
+		$results = array();
+
+		foreach ( $options as $option ) {
+			$pair = explode( '=', $option, 2 );
+			if ( count( $pair ) === 2 ) {
+				$name = trim( $pair[0] );
+				$value = trim( $pair[1] );
+				$results[$name] = $value;
+			}
+
+			if ( count( $pair ) === 1 ) {
+				$name = trim( $pair[0] );
+				$results[$name] = true;
+			}
+		}
+		return $results;
+	}
 }
 
 function httpRequest($url, $post = "", $headers = array()) {
