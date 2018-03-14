@@ -13,7 +13,7 @@ class PFMendeleyAutocompleteAPI extends ApiBase {
 	}
 
 	public function execute() {
-		$term = $this->getMain()->getVal('term');
+		$term = urlencode( $this->getMain()->getVal('term') );
 
 		$access_token = MendeleyHooks::getAccessToken();
 
