@@ -24,10 +24,18 @@ class PFMendeleyAutocompleteAPI extends ApiBase {
 		foreach( $result as $row ) {
 			$row_arr = array();
 			$row_arr['id'] = $row['id'];
-			$row_arr['label'] = strlen( $row['title'] ) > 50 ? substr( $row['title'] ,0 ,50 )."..." : $row['title'];
+			$row_arr['label'] = strlen( $row['title'] ) > 50 ? substr( $row['title'] ,0 ,50 ) . "..." : $row['title'];
 			$row_arr['full_label'] = $row['title'];
+			$row_arr['year'] = $row['year'];
+			$authors = array();
+			foreach( $row['authors'] as $author ) {
+				$authors[] = $author['first_name'] . ' ' . $author['last_name'];
+			}
+			$row_arr['authors'] = implode( ', ', $authors );
+			$row_arr['full_label'] = $row['title'];
+			$row_arr['abstract'] = strlen( $row['abstract'] ) > 300 ? substr( $row['abstract'], 0, 300 ) . "..." : $row['abstract'];
 			array_push($return_arr, $row_arr);
 		}
-		$this->getResult()->addValue( 'result', "autcomplete_results", $return_arr );
+		$this->getResult()->addValue( 'result', "autocomplete_results", $return_arr );
 	}
 }

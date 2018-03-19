@@ -43,6 +43,7 @@
 				"libs/PF_MendeleyInput.js"
 			],
 			"dependencies": [
+				"jquery.ui.tooltip",
 				"jquery.ui.autocomplete"
 			]
 		}
