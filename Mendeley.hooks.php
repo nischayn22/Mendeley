@@ -37,16 +37,15 @@ class MendeleyHooks {
 			$document_key = $options['id'];
 		}
 
-		// Check cache first
-		$cacheProp = self::getFromCache( $parser, $document_key );
-		if ( array_key_exists( $document_key, $cacheProp ) && ( wfTimestamp() - $cacheProp[$document_key]['ts'] ) < 3 * 24 * 3600 ) {
-			if ( isset( $cacheProp[$document_key]['title'] ) ) {
-				$serialized = serialize( $cacheProp );
-				$parser->getOutput()->setProperty( 'MendeleyProperties', $serialized );
-				return self::getArrayElementFromPath( $cacheProp[$document_key], $parameter );
-			}
-		}
+		// CACHE_DB is slow but we can cache more items - which is likely what we want
+		$cache_object = ObjectCache::getInstance( CACHE_DB );
 
+		// Check cache first
+		$cacheProp = unserialize( $cache_object->get( $document_key ) );
+
+		if ( $cacheProp ) {
+			return self::getArrayElementFromPath( $cacheProp, $parameter );
+		}
 		$access_token = self::getAccessToken();
 
 		$result = array();
@@ -61,11 +60,10 @@ class MendeleyHooks {
 		if ( empty( $result ) ) {
 			return '';
 		}
+
 		// Store in Cache
-		$result['ts'] = wfTimestamp();
-		$cacheProp[$document_key] = $result;
-        $serialized = serialize( $cacheProp );
-        $parser->getOutput()->setProperty( 'MendeleyProperties', $serialized );
+        $serialized = serialize( $result );
+		$cache_object->set( $document_key, $serialized, 5 * 24 * 60 * 60 );
 
 		return self::getArrayElementFromPath( $result, $parameter );
 	}
@@ -74,27 +72,6 @@ class MendeleyHooks {
 		global $wgMendeleyConsumerKey, $wgMendeleyConsumerSecret;
 		$result = httpRequest( "https://api.mendeley.com/oauth/token", "grant_type=client_credentials&scope=all&client_id=$wgMendeleyConsumerKey&client_secret=$wgMendeleyConsumerSecret" );
 		return json_decode( $result )->access_token;
-	}
-
-	public static function getFromCache( $parser, $doi ) {
-        $pageId = $parser->getTitle()->getArticleID();
-		$dbr = wfGetDB( DB_REPLICA );
-		$propValue = $dbr->selectField( 'page_props', // table to use
-			'pp_value', // Field to select
-			array( 'pp_page' => $pageId, 'pp_propname' => "MendeleyProperties" ), // where conditions
-			__METHOD__
-		);
-		if ( $propValue !== false ) {
-			return unserialize( $propValue );
-		}
-
-		// Try the parser object itself
-		$propValue = $parser->getOutput()->getProperty( 'MendeleyProperties' );
-		if ( $propValue !== false ) {
-			return unserialize( $propValue );
-		}
-
-		return array();
 	}
 
 	/**
