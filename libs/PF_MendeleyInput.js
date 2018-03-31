@@ -30,7 +30,7 @@ jQuery(document).ready( function() {
 					curr_id = $(this).attr('id');
 					$.each(results, function (index, item) {
 						if ( curr_id == item.id ) {
-							tooltipHtml = '<div><h4>'+ item.full_label +'</h4>Authors: '+ item.authors +'<br>Year: '+ item.year +'<br><br><b>Abstract:</b><br><p>'+ item.abstract +'</p></div>';
+							tooltipHtml = '<div><h4>'+ item.value +'</h4>Authors: '+ item.authors +'<br>Year: '+ item.year +'<br><br><b>Abstract:</b><br><p>'+ item.abstract +'</p></div>';
 							return false;
 						}
 					});
@@ -68,7 +68,6 @@ jQuery(document).ready( function() {
 		},
 		minLength: 2,
 		select: function(event, ui) {
-			$(this).val(ui.item.full_label);
 			$(this).parent().find('.menedeley_id_input').val(ui.item.id);
 		}
 	});
