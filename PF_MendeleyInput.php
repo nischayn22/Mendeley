@@ -20,12 +20,13 @@ class PFMendeleyInput extends PFFormInput {
 		$wgOut->addModules( 'ext.mendeley.main' );
 		$queryInputAttrs = array(
 			'class' => 'mendeley_input',
+			'style' => 'max-width: 400px;',
 			'placeholder' => 'Search Document title or author name',
 			'size' => '50'
 		);
 		$doiInputAttrs = array(
 			'class' => 'menedeley_id_input',
-			'style' => 'margin-top:10px;',
+			'style' => 'margin-top:10px;max-width: 400px;',
 			'placeholder' => 'Document ID (Can be auto populated on selecting title in above field)',
 			'size' => '50'
 		);
