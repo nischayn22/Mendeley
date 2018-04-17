@@ -107,7 +107,7 @@ class MendeleyHooks {
 				}
 			}
 		}
-		return $array;
+		return implode( ',', (array)$array );
 	}
 
 	public static function extractOptions( array $options ) {
