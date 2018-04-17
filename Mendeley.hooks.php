@@ -50,10 +50,10 @@ class MendeleyHooks {
 
 		$result = array();
 		if ( isset( $options['doi'] ) ) {
-			$result = httpRequest( "https://api.mendeley.com/catalog?doi=". $options['doi'] ."&access_token=$access_token&view=all" );
+			$result = self::httpRequest( "https://api.mendeley.com/catalog?doi=". $options['doi'] ."&access_token=$access_token&view=all" );
 			$result = json_decode( $result, true )[0];
 		} else {
-			$result = httpRequest( "https://api.mendeley.com/catalog/". $options['id'] ."?access_token=$access_token&view=all" );
+			$result = self::httpRequest( "https://api.mendeley.com/catalog/". $options['id'] ."?access_token=$access_token&view=all" );
 			$result = json_decode( $result, true );
 		}
 
@@ -70,7 +70,7 @@ class MendeleyHooks {
 
 	public static function getAccessToken() {
 		global $wgMendeleyConsumerKey, $wgMendeleyConsumerSecret;
-		$result = httpRequest( "https://api.mendeley.com/oauth/token", "grant_type=client_credentials&scope=all&client_id=$wgMendeleyConsumerKey&client_secret=$wgMendeleyConsumerSecret" );
+		$result = self::httpRequest( "https://api.mendeley.com/oauth/token", "grant_type=client_credentials&scope=all&client_id=$wgMendeleyConsumerKey&client_secret=$wgMendeleyConsumerSecret" );
 		return json_decode( $result )->access_token;
 	}
 
@@ -110,7 +110,6 @@ class MendeleyHooks {
 		return $array;
 	}
 
-
 	public static function extractOptions( array $options ) {
 		$results = array();
 
@@ -129,37 +128,38 @@ class MendeleyHooks {
 		}
 		return $results;
 	}
-}
 
-function httpRequest($url, $post = "", $headers = array()) {
-    try {
-        $ch = curl_init();
-        //Change the user agent below suitably
-        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.9) Gecko/20071025 Firefox/2.0.0.9');
-        curl_setopt($ch, CURLOPT_URL, ($url));
-        curl_setopt($ch, CURLOPT_ENCODING, "UTF-8");
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_COOKIESESSION, false);
-		curl_setopt($ch, CURLOPT_TIMEOUT, 20);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        if (!empty($post)) {
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
-			curl_setopt($ch, CURLOPT_POST, 1);
+	public static function httpRequest($url, $post = "", $headers = array()) {
+		try {
+			$ch = curl_init();
+			//Change the user agent below suitably
+			curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.9) Gecko/20071025 Firefox/2.0.0.9');
+			curl_setopt($ch, CURLOPT_URL, ($url));
+			curl_setopt($ch, CURLOPT_ENCODING, "UTF-8");
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_COOKIESESSION, false);
+			curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+			if (!empty($post)) {
+				curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+				curl_setopt($ch, CURLOPT_POST, 1);
+			}
+			if (!empty($headers))
+				curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+			$result = curl_exec($ch);
+
+			if (!$result) {
+				throw new Exception("Error getting data from server: " . curl_error($ch));
+			}
+
+			curl_close($ch);
 		}
-        if (!empty($headers))
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        $result = curl_exec($ch);
+		catch (Exception $e) {
+			echo 'Caught exception: ', $e->getMessage(), "\n";
+			return null;
+		}
+		return $result;
+	}
 
-        if (!$result) {
-            throw new Exception("Error getting data from server: " . curl_error($ch));
-        }
-
-        curl_close($ch);
-    }
-    catch (Exception $e) {
-		echo 'Caught exception: ', $e->getMessage(), "\n";
-		return null;
-    }
-    return $result;
 }
