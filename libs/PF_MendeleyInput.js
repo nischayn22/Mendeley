@@ -55,12 +55,16 @@ jQuery(document).ready( function() {
     });
 
 	$(".mendeley_input").autocomplete({
+		search: function( event, ui ) {
+			$( ".mendeley_input" ).addClass( 'loading' );
+		},
 		source: function( request, response ) {
 			 $.ajax({
 				url: wgScriptPath + '/api.php?action=pfmendeley&format=json',
 				dataType: "json",
 				data: request,
 				success: function(data){
+					$( ".mendeley_input" ).removeClass( 'loading' );
 					results = data.result.autocomplete_results;
 					response(data.result.autocomplete_results);
 				}

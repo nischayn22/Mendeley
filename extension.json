@@ -39,6 +39,9 @@
 	},
 	"ResourceModules": {
 		"ext.mendeley.main": {
+			"styles": [
+				"libs/PF_MendeleyInput.css"
+			],
 			"scripts": [
 				"libs/PF_MendeleyInput.js"
 			],
