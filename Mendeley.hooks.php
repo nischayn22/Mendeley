@@ -43,7 +43,7 @@ class MendeleyHooks {
 		// Check cache first
 		$cacheProp = unserialize( $cache_object->get( $document_key ) );
 
-		if ( $cacheProp ) {
+		if ( $cacheProp && !isset( $cacheProp['errorId'] ) ) {
 			return self::getArrayElementFromPath( $cacheProp, $parameter );
 		}
 		$access_token = self::getAccessToken();
@@ -57,7 +57,7 @@ class MendeleyHooks {
 			$result = json_decode( $result, true );
 		}
 
-		if ( empty( $result ) ) {
+		if ( empty( $result ) || isset( $result['errorId'] ) ) {
 			return '';
 		}
 
