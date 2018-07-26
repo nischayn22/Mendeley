@@ -20,6 +20,7 @@
 	"AutoloadClasses": {
 		"MendeleyHooks": "Mendeley.hooks.php",
 		"PFMendeleyInput": "PF_MendeleyInput.php",
+		"PFMendeleyInputDOI": "PFMendeleyInputDOI.php",
 		"PFMendeleyAutocompleteAPI": "PFMendeleyAutocompleteAPI.php"
 	},
 	"config": {

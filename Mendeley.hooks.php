@@ -17,6 +17,7 @@ class MendeleyHooks {
 
 	public static function onFormPrinterSetup( &$pfFormPrinter ) {
 		$pfFormPrinter->registerInputType( 'PFMendeleyInput' );
+		$pfFormPrinter->registerInputType( 'PFMendeleyInputDOI' );
 	}
 
 	/**

@@ -1,30 +1,29 @@
 <?php
 /**
- * File holding the PFMendeleyInput class
+ * File holding the PFMendeleyInputDOI class
  *
  * @file
  */
 
 /**
- * The PFMendeleyInput class.
+ * The PFMendeleyInputDOI class.
  */
-class PFMendeleyInput extends PFFormInput {
+class PFMendeleyInputDOI extends PFFormInput {
 
 	public static function getName() {
-		return 'mendeley_article';
+		return 'mendeley_doi';
 	}
 
 	public static function getHTML( $cur_value, $input_name, $is_mandatory, $is_disabled, $other_args ) {
 		global $wgOut;
 
-		$wgOut->addModules( 'ext.mendeley.main' );
-		$queryInputAttrs = array(
-			'class' => 'mendeley_input',
-			'style' => 'max-width: 400px;',
-			'placeholder' => 'Search Document title or author name',
+		$doiInputAttrs = array(
+			'class' => 'menedeley_id_input',
+			'style' => 'margin-top:10px;max-width: 400px;',
+			'placeholder' => 'Document ID (Can be auto populated on selecting title in above field)',
 			'size' => '50'
 		);
-		return Html::input( $input_name, $cur_value, 'text', $queryInputAttrs );
+		return  Html::input( $input_name, $cur_value, 'text', $doiInputAttrs );
 	}
 
 	/**

@@ -64,15 +64,15 @@ jQuery(document).ready( function() {
 				dataType: "json",
 				data: request,
 				success: function(data){
-					$( ".mendeley_input" ).removeClass( 'loading' );
 					results = data.result.autocomplete_results;
 					response(data.result.autocomplete_results);
+					$( ".mendeley_input" ).removeClass( 'loading' );
 				}
 			});
 		},
 		minLength: 2,
 		select: function(event, ui) {
-			$(this).parent().find('.menedeley_id_input').val(ui.item.id);
+			$('.menedeley_id_input').val(ui.item.id);
 		}
 	});
 });
