@@ -17,14 +17,25 @@ class PFMendeleyInput extends PFFormInput {
 	public static function getHTML( $cur_value, $input_name, $is_mandatory, $is_disabled, $other_args ) {
 		global $wgOut;
 
+		$className = 'mendeley_input';
+		if ( $is_mandatory ) {
+			$className .= ' mandatoryField';
+		}
+
 		$wgOut->addModules( 'ext.mendeley.main' );
 		$queryInputAttrs = array(
-			'class' => 'mendeley_input',
+			'class' => $className,
 			'style' => 'max-width: 400px;',
 			'placeholder' => 'Search Document title or author name',
 			'size' => '50'
 		);
-		return Html::input( $input_name, $cur_value, 'text', $queryInputAttrs );
+
+		$spanClass = 'inputSpan';
+		if ( $is_mandatory ) {
+			$spanClass .= ' mandatoryFieldSpan';
+		}
+
+		return Html::rawElement( 'span', array( 'class' => $spanClass ), Html::input( $input_name, $cur_value, 'text', $queryInputAttrs ) );
 	}
 
 	/**
