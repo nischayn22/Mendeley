@@ -99,7 +99,7 @@ class MendeleyHooks {
 						$output[] = $array_item[$index];
 					}
 				}
-				return implode( ',', $output );
+				return strip_tags( implode( ',', $output ) );
 			} else {
 				if ( isset( $array[$index] ) ) {
 					$array = $array[$index];
@@ -108,7 +108,7 @@ class MendeleyHooks {
 				}
 			}
 		}
-		return implode( ',', (array)$array );
+		return strip_tags( implode( ',', (array)$array ) );
 	}
 
 	public static function extractOptions( array $options ) {
