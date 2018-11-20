@@ -73,7 +73,7 @@ jQuery(document).ready( function() {
 		minLength: 2,
 		select: function(event, ui) {
 			$.each(ui.item, function (i, v) {
-				$('.menedeley_input_' + i ).val( v );
+				$('.mendeley_input_' + i ).val( v );
 			} );
 		}
 	});
