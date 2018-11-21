@@ -17,7 +17,7 @@ class PFMendeleyInputDOI extends PFFormInput {
 	public static function getHTML( $cur_value, $input_name, $is_mandatory, $is_disabled, $other_args ) {
 		global $wgOut;
 
-		$className = 'menedeley_input_id';
+		$className = 'mendeley_input_id';
 		if ( $is_mandatory ) {
 			$className .= ' mandatoryField';
 		}
