@@ -23,6 +23,7 @@ class PFMendeleyInputDOI extends PFFormInput {
 		}
 
 		$doiInputAttrs = array(
+			'disabled' => 'disabled',
 			'class' => $className,
 			'style' => 'margin-top:10px;max-width: 400px;',
 			'placeholder' => 'Document ID (Can be auto populated on selecting title in above field)',
