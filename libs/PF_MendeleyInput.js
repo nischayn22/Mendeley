@@ -74,6 +74,7 @@ jQuery(document).ready( function() {
 		select: function(event, ui) {
 			$.each(ui.item, function (i, v) {
 				$('.mendeley_input_' + i ).val( v );
+				$('.mendeley_input_' + i ).html( v );
 			} );
 		}
 	});
