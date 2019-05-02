@@ -30,7 +30,11 @@ jQuery(document).ready( function() {
 					curr_id = $(this).attr('id');
 					$.each(results, function (index, item) {
 						if ( curr_id == item.id ) {
-							tooltipHtml = '<div><h4>'+ item.value +'</h4>Authors: '+ item.authors +'<br>Year: '+ item.year +'<br><br><b>Abstract:</b><br><p>'+ item.abstract +'</p></div>';
+							var article_abstract = item.abstract.substr( 0, 255 );
+							if ( item.abstract.length > 255 ) {
+								article_abstract += "...";
+							}
+							tooltipHtml = '<div><h4>'+ item.value +'</h4>Authors: '+ item.authors +'<br>Year: '+ item.year +'<br><br><b>Abstract:</b><br><p>'+ article_abstract +'</p></div>';
 							return false;
 						}
 					});
@@ -55,6 +59,7 @@ jQuery(document).ready( function() {
     });
 
 	$(".mendeley_input").autocomplete({
+		autoFocus: true,
 		search: function( event, ui ) {
 			$( ".mendeley_input" ).addClass( 'loading' );
 		},
@@ -76,6 +81,10 @@ jQuery(document).ready( function() {
 				$('.mendeley_input_' + i ).val( v );
 				$('.mendeley_input_' + i ).html( v );
 			} );
+		}
+	}).off('blur').on('blur', function() {
+		if(document.hasFocus()) {
+			$('ul.ui-autocomplete').hide();
 		}
 	});
 });
