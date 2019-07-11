@@ -78,8 +78,20 @@ jQuery(document).ready( function() {
 		minLength: 2,
 		select: function(event, ui) {
 			$.each(ui.item, function (i, v) {
-				$('.mendeley_input_' + i ).val( v );
-				$('.mendeley_input_' + i ).html( v );
+				if ( v == null ) {
+					return;
+				}
+				if ( $( 'input.pfTokens.mendeley_input_' + i ).length == 1 ) {
+					values = v.split( ", " );
+					tokens = new pf.select2.tokens();
+					delimiter = tokens.getDelimiter( $( 'input.pfTokens.mendeley_input_' + i ) );
+					values = values.join( delimiter );
+					$( 'input.pfTokens.mendeley_input_' + i ).val( values );
+					tokens.refresh( $( 'input.pfTokens.mendeley_input_' + i ) );
+				} else {
+					$('.mendeley_input_' + i ).val( v );
+					$('.mendeley_input_' + i ).html( v );
+				}
 			} );
 		}
 	}).off('blur').on('blur', function() {
