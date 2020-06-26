@@ -17,7 +17,11 @@
 	"APIModules": {
 		"pfmendeley": "PFMendeleyAutocompleteAPI"
 	},
+	"SpecialPages": {
+		"MendeleyImport": "SpecialMendeleyImport"
+	},
 	"AutoloadClasses": {
+		"SpecialMendeleyImport": "SpecialMendeleyImport.php",
 		"MendeleyHooks": "Mendeley.hooks.php",
 		"PFMendeleyInput": "PF_MendeleyInput.php",
 		"PFMendeleyInputDOI": "PFMendeleyInputDOI.php",

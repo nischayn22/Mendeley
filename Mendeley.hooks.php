@@ -142,12 +142,15 @@ class MendeleyHooks {
 			curl_setopt($ch, CURLOPT_TIMEOUT, 20);
 			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+			curl_setopt($ch, CURLOPT_VERBOSE, 1);
+
 			if (!empty($post)) {
 				curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
 				curl_setopt($ch, CURLOPT_POST, 1);
 			}
-			if (!empty($headers))
+			if (!empty($headers)) {
 				curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+			}
 			$result = curl_exec($ch);
 
 			if (!$result) {
