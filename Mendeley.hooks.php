@@ -130,7 +130,7 @@ class MendeleyHooks {
 		return $results;
 	}
 
-	public static function httpRequest($url, $post = "", $headers = array()) {
+	public static function httpRequest($url, $post = "", $headers = array(), &$responseHeaders = array() ) {
 		try {
 			$ch = curl_init();
 			//Change the user agent below suitably
@@ -143,6 +143,7 @@ class MendeleyHooks {
 			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 			curl_setopt($ch, CURLOPT_VERBOSE, 1);
+			curl_setopt($ch, CURLOPT_HEADER, 1);
 
 			if (!empty($post)) {
 				curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
@@ -151,11 +152,14 @@ class MendeleyHooks {
 			if (!empty($headers)) {
 				curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 			}
-			$result = curl_exec($ch);
+			$response = curl_exec($ch);
 
-			if (!$result) {
+			if (!$response) {
 				throw new Exception("Error getting data from server: " . curl_error($ch));
 			}
+			$header_size = curl_getinfo( $ch, CURLINFO_HEADER_SIZE );
+			$responseHeaders = explode( "\r\n", substr( $response, 0, $header_size ) );
+			$body = substr( $response, $header_size );
 
 			curl_close($ch);
 		}
@@ -163,7 +167,7 @@ class MendeleyHooks {
 			echo 'Caught exception: ', $e->getMessage(), "\n";
 			return null;
 		}
-		return $result;
+		return $body;
 	}
 
 }
