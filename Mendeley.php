@@ -110,12 +110,20 @@ class Mendeley {
 					$keys = array_map( function ( $key ) {
 						return '<' . $key . '>';
 					}, array_keys( $row ) );
-					$replacements = array_map( function ( $r ) {
-						// Pick only first item from array-values
-						$t = is_array( $r ) ? $r[0] : $r;
-						// deep arrays
-						$t = is_array( $t ) ? $t[0] : $t;
-						return $t;
+					$replacements = array_map( function ( $r ) use ( $wgMendeleyTemplateFieldsMapDelimiter ) {
+						if ( is_array( $r ) ) {
+							if( !count( $r) ) {
+								return '';
+							}
+							if ( is_array( $r[0] ) ) {
+								if( !count( $r[0] ) ) {
+									return '';
+								}
+								return implode( ' ', $r[0] );
+							}
+							return $r[0];
+						}
+						return $r;
 					}, array_values( $row ) );
 					$pagename = str_ireplace( $keys, $replacements, $wgMendeleyPageFormula );
 				}
