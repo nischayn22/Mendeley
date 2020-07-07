@@ -3,6 +3,7 @@
 class Mendeley {
 
 	private static $instance;
+	private $tokenFails = 0;
 
 	public static function getInstance() {
 		if ( self::$instance === null ) {
@@ -80,16 +81,21 @@ class Mendeley {
 					}
 					if ( strpos( $field, '@' ) === 0 ) {
 						$field = str_replace( '@', '', $field );
-						// special case for authors
-						if ( $property === 'authors' ) {
-							$text .= '|' . $field . '=' .
-									 implode( ',', array_map( function ( $author ) {
-										 return implode( ' ', $author );
-									 }, $row['authors'] ) ) . "\n";
-						} else {
-							$text .= '|' . $field . '=' .
-									 implode( $wgMendeleyTemplateFieldsMapDelimiter, $row[$property] ) .
-									 "\n";
+						// special case for deep arrays
+						if( is_array( $row[$property] ) ) {
+							if ( count($row[$property]) && is_array( $row[$property][0] ) ) {
+								$text .= '|' . $field . '=' .
+										 implode( $wgMendeleyTemplateFieldsMapDelimiter, array_map( function ( $item ) {
+											 return implode( ' ', $item );
+										 }, $row[$property] ) ) . "\n";
+							} else {
+								$text .= '|' . $field . '=' .
+										 implode( $wgMendeleyTemplateFieldsMapDelimiter, $row[$property] ) .
+										 "\n";
+							}
+						}else{
+							// fallback to normal processing
+							$text .= '|' . $field . '=' . $row[$property] . "\n";
 						}
 					} else {
 						$text .= '|' . $field . '=' . $row[$property] . "\n";
@@ -242,7 +248,7 @@ class Mendeley {
 		$ts = $cache->get( $keyTs );
 		$result = $cache->get( $key );
 		if( $result ) {
-			if( $ts && time() - $ts >= 3600 ) {
+			if( $token == 'access' && $ts && time() - $ts >= 3600 ) {
 				$this->refreshAccessToken();
 				return $this->getToken( $token );
 			}
