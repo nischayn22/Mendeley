@@ -31,6 +31,8 @@ class MendeleyHooks {
 
 		$parameter = $options['parameter'];
 
+		$mendeley = Mendeley::getInstance();
+
 		$document_key = '';
 		if ( isset( $options['doi'] ) ) {
 			$document_key = $options['doi'];
@@ -47,14 +49,14 @@ class MendeleyHooks {
 		if ( $cacheProp && !isset( $cacheProp['errorId'] ) ) {
 			return self::getArrayElementFromPath( $cacheProp, $parameter );
 		}
-		$access_token = self::getAccessToken();
+		$access_token = $mendeley->getAccessToken();
 
 		$result = array();
 		if ( isset( $options['doi'] ) ) {
-			$result = self::httpRequest( "https://api.mendeley.com/catalog?doi=". $options['doi'] ."&access_token=$access_token&view=all" );
+			$result = $mendeley->httpRequest( "https://api.mendeley.com/catalog?doi=". $options['doi'] ."&access_token=$access_token&view=all" );
 			$result = json_decode( $result, true )[0];
 		} else {
-			$result = self::httpRequest( "https://api.mendeley.com/catalog/". $options['id'] ."?access_token=$access_token&view=all" );
+			$result = $mendeley->httpRequest( "https://api.mendeley.com/catalog/". $options['id'] ."?access_token=$access_token&view=all" );
 			$result = json_decode( $result, true );
 		}
 
@@ -67,12 +69,6 @@ class MendeleyHooks {
 		$cache_object->set( $document_key, $serialized, 5 * 24 * 60 * 60 );
 
 		return self::getArrayElementFromPath( $result, $parameter );
-	}
-
-	public static function getAccessToken() {
-		global $wgMendeleyConsumerKey, $wgMendeleyConsumerSecret;
-		$result = self::httpRequest( "https://api.mendeley.com/oauth/token", "grant_type=client_credentials&scope=all&client_id=$wgMendeleyConsumerKey&client_secret=$wgMendeleyConsumerSecret" );
-		return json_decode( $result )->access_token;
 	}
 
 	/**
@@ -128,46 +124,6 @@ class MendeleyHooks {
 			}
 		}
 		return $results;
-	}
-
-	public static function httpRequest($url, $post = "", $headers = array(), &$responseHeaders = array() ) {
-		try {
-			$ch = curl_init();
-			//Change the user agent below suitably
-			curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.9) Gecko/20071025 Firefox/2.0.0.9');
-			curl_setopt($ch, CURLOPT_URL, ($url));
-			curl_setopt($ch, CURLOPT_ENCODING, "UTF-8");
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			curl_setopt($ch, CURLOPT_COOKIESESSION, false);
-			curl_setopt($ch, CURLOPT_TIMEOUT, 20);
-			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-			curl_setopt($ch, CURLOPT_VERBOSE, 1);
-			curl_setopt($ch, CURLOPT_HEADER, 1);
-
-			if (!empty($post)) {
-				curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
-				curl_setopt($ch, CURLOPT_POST, 1);
-			}
-			if (!empty($headers)) {
-				curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-			}
-			$response = curl_exec($ch);
-
-			if (!$response) {
-				throw new Exception("Error getting data from server: " . curl_error($ch));
-			}
-			$header_size = curl_getinfo( $ch, CURLINFO_HEADER_SIZE );
-			$responseHeaders = explode( "\r\n", substr( $response, 0, $header_size ) );
-			$body = substr( $response, $header_size );
-
-			curl_close($ch);
-		}
-		catch (Exception $e) {
-			echo 'Caught exception: ', $e->getMessage(), "\n";
-			return null;
-		}
-		return $body;
 	}
 
 }

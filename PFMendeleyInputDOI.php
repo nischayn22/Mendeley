@@ -35,7 +35,16 @@ class PFMendeleyInputDOI extends PFFormInput {
 			$spanClass .= ' mandatoryFieldSpan';
 		}
 
-		return Html::rawElement( 'span', array( 'class' => $spanClass ), Html::input( $input_name, $cur_value, 'text', $doiInputAttrs ) );
+		return Html::rawElement(
+			'span',
+			array( 'class' => $spanClass ),
+			Html::input(
+				$input_name,
+				$cur_value,
+				'text',
+				$doiInputAttrs
+			)
+		);
 	}
 
 	/**

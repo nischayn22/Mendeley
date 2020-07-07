@@ -1,6 +1,6 @@
 {
 	"name": "Mendeley",
-	"version": "0.1 beta",
+	"version": "0.2 beta",
 	"author": [
 		"Nischay Nahata",
 		"Wikiworks.com"
@@ -25,11 +25,19 @@
 		"MendeleyHooks": "Mendeley.hooks.php",
 		"PFMendeleyInput": "PF_MendeleyInput.php",
 		"PFMendeleyInputDOI": "PFMendeleyInputDOI.php",
-		"PFMendeleyAutocompleteAPI": "PFMendeleyAutocompleteAPI.php"
+		"PFMendeleyAutocompleteAPI": "PFMendeleyAutocompleteAPI.php",
+		"Mendeley": "Mendeley.php"
 	},
 	"config": {
-		"wgMendeleyConsumerKey": null,
-		"wgMendeleyConsumerSecret": null
+		"MendeleyConsumerKey": null,
+		"MendeleyConsumerSecret": null,
+		"MendeleyToken": null,
+		"MendeleyRefreshToken": null,
+		"MendeleyTemplate": "Article",
+		"MendeleyTemplateFields": [],
+		"MendeleyTemplateFieldsMapDelimiter": ";",
+		"MendeleyPageFormula": null,
+		"MendeleyRedirectUrl": null
 	},
 	"ExtensionMessagesFiles": {
 		"MendeleyHooksMagic": "Mendeley.i18n.magic.php"
