@@ -180,9 +180,17 @@ class Mendeley {
 	}
 
 	public function getAccessToken() {
-		global $wgMendeleyConsumerKey, $wgMendeleyConsumerSecret, $wgMendeleyToken;
+		global $wgMendeleyConsumerKey, $wgMendeleyConsumerSecret,
+			   $wgMendeleyToken, $wgMemCachedServers, $wgObjectCaches;
+
 		// test against $wgMendeleyToken to ensure we want to use the auth code flow
 		if ( !empty($wgMendeleyToken) ) {
+			if ( !count($wgMemCachedServers) && !isset($wgObjectCaches['redis']) ) {
+				throw new Exception(
+					"The Mendeley extension is configured to use Authorization Code " .
+					"flow but neither Memcached nor Redis cache is found!"
+				);
+			}
 			return $this->getToken( 'access' );
 		}
 		$result = $this->httpRequest( "https://api.mendeley.com/oauth/token", "grant_type=client_credentials&scope=all&client_id=$wgMendeleyConsumerKey&client_secret=$wgMendeleyConsumerSecret" );
