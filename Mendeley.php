@@ -112,7 +112,10 @@ class Mendeley {
 					}, array_keys( $row ) );
 					$replacements = array_map( function ( $r ) {
 						// Pick only first item from array-values
-						return is_array( $r ) ? $r[0] : $r;
+						$t = is_array( $r ) ? $r[0] : $r;
+						// deep arrays
+						$t = is_array( $t ) ? $t[0] : $t;
+						return $t;
 					}, array_values( $row ) );
 					$pagename = str_ireplace( $keys, $replacements, $wgMendeleyPageFormula );
 				}
