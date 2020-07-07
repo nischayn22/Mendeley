@@ -74,6 +74,10 @@ class Mendeley {
 				$row = $this->array_flatten( $result_row );
 				$text = '{{' . $wgMendeleyTemplate . "\n";
 				foreach ( $wgMendeleyTemplateFields as $property => $field ) {
+					if ( !isset($row[$property]) ) {
+						wfDebugLog( 'Mendeley', 'field '. $property . ' not found!' );
+						continue;
+					}
 					if ( strpos( $field, '@' ) === 0 ) {
 						$field = str_replace( '@', '', $field );
 						// special case for authors
