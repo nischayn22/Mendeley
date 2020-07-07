@@ -63,6 +63,11 @@ class Mendeley {
 			$result = json_decode( $result, true );
 		}
 
+		// Fail after first refresh try or if token is not refreshable
+		if ( isset( $result['errorId'] ) ) {
+			throw new Exception($result['message']);
+		}
+
 		while ( true ) {
 			foreach ( $result as $result_row ) {
 
