@@ -69,79 +69,81 @@ class Mendeley {
 			throw new Exception($result['message']);
 		}
 
-		while ( true ) {
-			foreach ( $result as $result_row ) {
+		if( count( $result ) ) {
+			while ( true ) {
+				foreach ( $result as $result_row ) {
 
-				$row = $this->array_flatten( $result_row );
-				$text = '{{' . $wgMendeleyTemplate . "\n";
-				foreach ( $wgMendeleyTemplateFields as $property => $field ) {
-					if ( !isset($row[$property]) ) {
-						wfDebugLog( 'Mendeley', 'field '. $property . ' not found!' );
-						continue;
-					}
-					if ( strpos( $field, '@' ) === 0 ) {
-						$field = str_replace( '@', '', $field );
-						// special case for deep arrays
-						if( is_array( $row[$property] ) ) {
-							if ( count($row[$property]) && is_array( $row[$property][0] ) ) {
-								$text .= '|' . $field . '=' .
-										 implode( $wgMendeleyTemplateFieldsMapDelimiter, array_map( function ( $item ) {
-											 return implode( ' ', $item );
-										 }, $row[$property] ) ) . "\n";
+					$row = $this->array_flatten( $result_row );
+					$text = '{{' . $wgMendeleyTemplate . "\n";
+					foreach ( $wgMendeleyTemplateFields as $property => $field ) {
+						if ( !isset( $row[$property] ) ) {
+							wfDebugLog( 'Mendeley', 'field ' . $property . ' not found!' );
+							continue;
+						}
+						if ( strpos( $field, '@' ) === 0 ) {
+							$field = str_replace( '@', '', $field );
+							// special case for deep arrays
+							if ( is_array( $row[$property] ) ) {
+								if ( count( $row[$property] ) && is_array( $row[$property][0] ) ) {
+									$text .= '|' . $field . '=' .
+											 implode( $wgMendeleyTemplateFieldsMapDelimiter, array_map( function ( $item ) {
+												 return implode( ' ', $item );
+											 }, $row[$property] ) ) . "\n";
+								} else {
+									$text .= '|' . $field . '=' .
+											 implode( $wgMendeleyTemplateFieldsMapDelimiter, $row[$property] ) .
+											 "\n";
+								}
 							} else {
-								$text .= '|' . $field . '=' .
-										 implode( $wgMendeleyTemplateFieldsMapDelimiter, $row[$property] ) .
-										 "\n";
+								// fallback to normal processing
+								$text .= '|' . $field . '=' . $row[$property] . "\n";
 							}
-						}else{
-							// fallback to normal processing
+						} else {
 							$text .= '|' . $field . '=' . $row[$property] . "\n";
 						}
-					} else {
-						$text .= '|' . $field . '=' . $row[$property] . "\n";
 					}
-				}
-				$text .= '}}';
+					$text .= '}}';
 
-				$pagename = $result_row['id'];
+					$pagename = $result_row['id'];
 
-				// Replace tokens in page formula
-				if ( $wgMendeleyPageFormula ) {
-					$keys = array_map( function ( $key ) {
-						return '<' . $key . '>';
-					}, array_keys( $row ) );
-					$replacements = array_map( function ( $r ) use ( $wgMendeleyTemplateFieldsMapDelimiter ) {
-						if ( is_array( $r ) ) {
-							if( !count( $r) ) {
-								return '';
-							}
-							if ( is_array( $r[0] ) ) {
-								if( !count( $r[0] ) ) {
+					// Replace tokens in page formula
+					if ( $wgMendeleyPageFormula ) {
+						$keys = array_map( function ( $key ) {
+							return '<' . $key . '>';
+						}, array_keys( $row ) );
+						$replacements = array_map( function ( $r ) use ( $wgMendeleyTemplateFieldsMapDelimiter ) {
+							if ( is_array( $r ) ) {
+								if ( !count( $r ) ) {
 									return '';
 								}
-								return implode( ' ', $r[0] );
+								if ( is_array( $r[0] ) ) {
+									if ( !count( $r[0] ) ) {
+										return '';
+									}
+									return implode( ' ', $r[0] );
+								}
+								return $r[0];
 							}
-							return $r[0];
-						}
-						return $r;
-					}, array_values( $row ) );
-					$pagename = str_ireplace( $keys, $replacements, $wgMendeleyPageFormula );
+							return $r;
+						}, array_values( $row ) );
+						$pagename = str_ireplace( $keys, $replacements, $wgMendeleyPageFormula );
+					}
+
+					//die();
+
+					$title = Title::newFromText( $pagename );
+					$wikiPage = new WikiPage( $title );
+					$content = ContentHandler::makeContent( $text, $title );
+					$wikiPage->doEditContent( $content, "Importing document found in group" );
+					$pagesLinks[] = $title;
+					$pages ++;
 				}
-
-				//die();
-
-				$title = Title::newFromText( $pagename );
-				$wikiPage = new WikiPage( $title );
-				$content = ContentHandler::makeContent( $text, $title );
-				$wikiPage->doEditContent( $content, "Importing document found in group" );
-				$pagesLinks[] = $title;
-				$pages ++;
-			}
-			$nextLink = $this->getPaginationLink( $responseHeaders );
-			if ( $nextLink ) {
-				$result = $this->httpRequest( $nextLink, '', array(), $responseHeaders );
-			} else {
-				break;
+				$nextLink = $this->getPaginationLink( $responseHeaders );
+				if ( $nextLink ) {
+					$result = $this->httpRequest( $nextLink, '', array(), $responseHeaders );
+				} else {
+					break;
+				}
 			}
 		}
 

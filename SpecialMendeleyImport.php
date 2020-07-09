@@ -31,8 +31,9 @@ class SpecialMendeleyImport extends SpecialPage {
 			Html::closeElement( 'form' )
 		);
 
-		if ( $request->getVal( "mendeley_group_id" ) ) {
-			$this->handleImport( $request->getVal( "mendeley_group_id" ) );
+		$group_id = $request->getVal( "mendeley_group_id", $par );
+		if ( $group_id ) {
+			$this->handleImport( $group_id );
 		}
 	}
 
