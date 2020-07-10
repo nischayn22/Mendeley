@@ -37,7 +37,8 @@
 		"MendeleyTemplateFields": [],
 		"MendeleyTemplateFieldsMapDelimiter": ";",
 		"MendeleyPageFormula": null,
-		"MendeleyRedirectUrl": null
+		"MendeleyRedirectUrl": null,
+		"MendeleyFieldValuesDelimiter": " "
 	},
 	"ExtensionMessagesFiles": {
 		"MendeleyHooksMagic": "Mendeley.i18n.magic.php"

@@ -25,7 +25,8 @@ class Mendeley {
 		global $wgMendeleyTemplate,
 			   $wgMendeleyTemplateFields,
 			   $wgMendeleyTemplateFieldsMapDelimiter,
-			   $wgMendeleyPageFormula;
+			   $wgMendeleyPageFormula,
+			   $wgMendeleyFieldValuesDelimiter;
 
 		$pages = 0;
 		$pagesLinks = [];
@@ -86,8 +87,8 @@ class Mendeley {
 							if ( is_array( $row[$property] ) ) {
 								if ( count( $row[$property] ) && is_array( $row[$property][0] ) ) {
 									$text .= '|' . $field . '=' .
-											 implode( $wgMendeleyTemplateFieldsMapDelimiter, array_map( function ( $item ) {
-												 return implode( ' ', $item );
+											 implode( $wgMendeleyTemplateFieldsMapDelimiter, array_map( function ( $item ) use ( $wgMendeleyFieldValuesDelimiter ) {
+												 return implode( $wgMendeleyFieldValuesDelimiter, $item );
 											 }, $row[$property] ) ) . "\n";
 								} else {
 									$text .= '|' . $field . '=' .
