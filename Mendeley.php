@@ -106,10 +106,6 @@ class Mendeley {
 							// append different properties to the same field
 							$fieldName = substr( $field, 0, strpos( $field, '[' ) );
 							$fieldName = str_replace( '+', '', $fieldName );
-//							if ( !isset($appendProps[$field]) ) {
-//								$appendProps[$field] = [];
-//							}
-//							$appendProps[$field][] = $row[$property];
 							$appendProps[$fieldName] = $field;
 						} else {
 							$text .= '|' . $field . '=' . $row[$property] . "\n";
@@ -121,11 +117,28 @@ class Mendeley {
 							$pattern = substr( $v, strpos( $v, '[' ) + 1 );
 							$pattern = substr( $pattern, 0,strpos( $pattern, ']' ) );
 							$value = preg_replace_callback( '/\<([a-z]+)\>/', function( $m ) use ( $row ) {
-								return (isset($row[$m[1]])) ? $row[$m[1]] : '';
+								if ( isset($row[$m[1]]) ) {
+									return $row[$m[1]];
+								}
+								return '';
 							}, $pattern );
 							$text .= '|' . $k . '=' . $value . "\n";
 						}
 					}
+
+					// TODO: fixme
+					$dateprop = '';
+					if( isset( $row['year'] ) && !empty( $row['year'] ) ) {
+						$dateprop .= $row['year'];
+						if( isset( $row['month']) && !empty( $row['month'] ) ) {
+							$dateprop .= '-' . $row['month'];
+							if( isset( $row['day']) && !empty( $row['day'] ) ) {
+								$dateprop .= '-' . $row['day'];
+							}
+						}
+					}
+
+					$text .= '|Date=' . $dateprop . "\n";
 
 					$text .= '}}';
 
