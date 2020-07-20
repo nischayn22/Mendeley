@@ -104,12 +104,13 @@ class Mendeley {
 							}
 						} elseif ( strpos( $field, '+' ) === 0 ) {
 							// append different properties to the same field
-							$field = str_replace( '+', '', $field );
+							$fieldName = substr( $field, 0, strpos( $field, '[' ) );
+							$fieldName = str_replace( '+', '', $fieldName );
 //							if ( !isset($appendProps[$field]) ) {
 //								$appendProps[$field] = [];
 //							}
 //							$appendProps[$field][] = $row[$property];
-							$appendProps[] = $field;
+							$appendProps[$fieldName] = $field;
 						} else {
 							$text .= '|' . $field . '=' . $row[$property] . "\n";
 						}
