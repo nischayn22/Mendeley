@@ -13,6 +13,8 @@ class SpecialMendeleyImport extends SpecialPage {
 		$request = $this->getRequest();
 		$out = $this->getOutput();
 
+		$group_id = $request->getVal( "mendeley_group_id", $par );
+
 		$formOpts = [
 			'id' => 'menedeley_import',
 			'method' => 'post',
@@ -23,7 +25,7 @@ class SpecialMendeleyImport extends SpecialPage {
 		$out->addHTML(
 			Html::openElement( 'form', $formOpts ) . "<br>" .
 			Html::label( "Enter Mendeley Group ID","", array( "for" => "mendeley_group_id" ) ) . "<br>" .
-			Html::element( 'input', array( "id" => "mendeley_group_id", "name" => "mendeley_group_id", "type" => "text" ) ) . "<br><br>"
+			Html::element( 'input', array( "id" => "mendeley_group_id", "name" => "mendeley_group_id", "type" => "text", "value" => $group_id ) ) . "<br><br>"
 		);
 
 		$out->addHTML(
@@ -31,7 +33,6 @@ class SpecialMendeleyImport extends SpecialPage {
 			Html::closeElement( 'form' )
 		);
 
-		$group_id = $request->getVal( "mendeley_group_id", $par );
 		if ( $group_id ) {
 			$this->handleImport( $group_id );
 		}

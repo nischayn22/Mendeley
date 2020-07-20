@@ -26,7 +26,8 @@ class Mendeley {
 			   $wgMendeleyTemplateFields,
 			   $wgMendeleyTemplateFieldsMapDelimiter,
 			   $wgMendeleyPageFormula,
-			   $wgMendeleyFieldValuesDelimiter;
+			   $wgMendeleyFieldValuesDelimiter,
+			   $wgMendeleyAppendFieldValuesDelimiter;
 
 		$pages = 0;
 		$pagesLinks = [];
@@ -74,6 +75,8 @@ class Mendeley {
 			while ( true ) {
 				foreach ( $result as $result_row ) {
 
+					$appendProps = [];
+
 					$row = $this->array_flatten( $result_row );
 					$text = '{{' . $wgMendeleyTemplate . "\n";
 					foreach ( $wgMendeleyTemplateFields as $property => $field ) {
@@ -99,10 +102,24 @@ class Mendeley {
 								// fallback to normal processing
 								$text .= '|' . $field . '=' . $row[$property] . "\n";
 							}
+						} elseif ( strpos( $field, '+' ) === 0 ) {
+							// append different properties to the same field
+							$field = str_replace( '+', '', $field );
+							if ( !isset($appendProps[$field]) ) {
+								$appendProps[$field] = [];
+							}
+							$appendProps[$field][] = $row[$property];
 						} else {
 							$text .= '|' . $field . '=' . $row[$property] . "\n";
 						}
 					}
+
+					if ( count( $appendProps ) ) {
+						foreach ( $appendProps as $k => $v ) {
+							$text .= '|' . $k . '=' . implode( $wgMendeleyAppendFieldValuesDelimiter, $v) . "\n";
+						}
+					}
+
 					$text .= '}}';
 
 					$pagename = $result_row['id'];
