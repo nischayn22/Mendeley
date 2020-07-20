@@ -105,10 +105,11 @@ class Mendeley {
 						} elseif ( strpos( $field, '+' ) === 0 ) {
 							// append different properties to the same field
 							$field = str_replace( '+', '', $field );
-							if ( !isset($appendProps[$field]) ) {
-								$appendProps[$field] = [];
-							}
-							$appendProps[$field][] = $row[$property];
+//							if ( !isset($appendProps[$field]) ) {
+//								$appendProps[$field] = [];
+//							}
+//							$appendProps[$field][] = $row[$property];
+							$appendProps[] = $field;
 						} else {
 							$text .= '|' . $field . '=' . $row[$property] . "\n";
 						}
@@ -116,7 +117,12 @@ class Mendeley {
 
 					if ( count( $appendProps ) ) {
 						foreach ( $appendProps as $k => $v ) {
-							$text .= '|' . $k . '=' . implode( $wgMendeleyAppendFieldValuesDelimiter, $v) . "\n";
+							$pattern = substr( $v, strpos( $v, '[' ) + 1 );
+							$pattern = substr( $pattern, 0,strpos( $pattern, ']' ) );
+							$value = preg_replace_callback( '/\<([a-z]+)\>/', function( $m ) use ( $row ) {
+								return $row[$m[1]];
+							}, $pattern );
+							$text .= '|' . $k . '=' . $value . "\n";
 						}
 					}
 
