@@ -120,7 +120,7 @@ class Mendeley {
 							$pattern = substr( $v, strpos( $v, '[' ) + 1 );
 							$pattern = substr( $pattern, 0,strpos( $pattern, ']' ) );
 							$value = preg_replace_callback( '/\<([a-z]+)\>/', function( $m ) use ( $row ) {
-								return $row[$m[1]];
+								return (isset($row[$m[1]])) ? $row[$m[1]] : '';
 							}, $pattern );
 							$text .= '|' . $k . '=' . $value . "\n";
 						}
