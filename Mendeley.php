@@ -27,7 +27,8 @@ class Mendeley {
 			   $wgMendeleyTemplateFieldsMapDelimiter,
 			   $wgMendeleyPageFormula,
 			   $wgMendeleyFieldValuesDelimiter,
-			   $wgMendeleyAppendFieldValuesDelimiter;
+			   $wgMendeleyAppendFieldValuesDelimiter,
+			   $wgMendeleyReplaceUnderscores;
 
 		$pages = 0;
 		$pagesLinks = [];
@@ -90,12 +91,13 @@ class Mendeley {
 							if ( is_array( $row[$property] ) ) {
 								if ( count( $row[$property] ) && is_array( $row[$property][0] ) ) {
 									$text .= '|' . $field . '=' .
+											 $this->processValue(
 											 implode( $wgMendeleyTemplateFieldsMapDelimiter, array_map( function ( $item ) use ( $wgMendeleyFieldValuesDelimiter ) {
 												 return implode( $wgMendeleyFieldValuesDelimiter, $item );
-											 }, $row[$property] ) ) . "\n";
+											 }, $row[$property] ) ) ) . "\n";
 								} else {
 									$text .= '|' . $field . '=' .
-											 implode( $wgMendeleyTemplateFieldsMapDelimiter, $row[$property] ) .
+											 $this->processValue( implode( $wgMendeleyTemplateFieldsMapDelimiter, $row[$property] ) ) .
 											 "\n";
 								}
 							} else {
@@ -108,7 +110,7 @@ class Mendeley {
 							$fieldName = str_replace( '+', '', $fieldName );
 							$appendProps[$fieldName] = $field;
 						} else {
-							$text .= '|' . $field . '=' . $row[$property] . "\n";
+							$text .= '|' . $field . '=' . $this->processValue( $row[$property] ) . "\n";
 						}
 					}
 
@@ -122,7 +124,7 @@ class Mendeley {
 								}
 								return '';
 							}, $pattern );
-							$text .= '|' . $k . '=' . $value . "\n";
+							$text .= '|' . $k . '=' . $this->processValue( $value ) . "\n";
 						}
 					}
 
@@ -167,8 +169,6 @@ class Mendeley {
 						$pagename = str_ireplace( $keys, $replacements, $wgMendeleyPageFormula );
 					}
 
-					//die();
-
 					$title = Title::newFromText( $pagename );
 					$wikiPage = new WikiPage( $title );
 					$content = ContentHandler::makeContent( $text, $title );
@@ -199,6 +199,14 @@ class Mendeley {
 			}
 		}
 		return null;
+	}
+
+	private function processValue( $value ) {
+		global $wgMendeleyReplaceUnderscores;
+		if ( $wgMendeleyReplaceUnderscores ) {
+			$value = str_replace( '_', ' ', $value );
+		}
+		return $value;
 	}
 
 	/**
