@@ -27,8 +27,7 @@ class Mendeley {
 			   $wgMendeleyTemplateFieldsMapDelimiter,
 			   $wgMendeleyPageFormula,
 			   $wgMendeleyFieldValuesDelimiter,
-			   $wgMendeleyAppendFieldValuesDelimiter,
-			   $wgMendeleyReplaceUnderscores;
+			   $wgMendeleyAppendFieldValuesDelimiter;
 
 		$pages = 0;
 		$pagesLinks = [];
@@ -92,12 +91,13 @@ class Mendeley {
 								if ( count( $row[$property] ) && is_array( $row[$property][0] ) ) {
 									$text .= '|' . $field . '=' .
 											 $this->processValue(
+												 $property,
 											 implode( $wgMendeleyTemplateFieldsMapDelimiter, array_map( function ( $item ) use ( $wgMendeleyFieldValuesDelimiter ) {
 												 return implode( $wgMendeleyFieldValuesDelimiter, $item );
 											 }, $row[$property] ) ) ) . "\n";
 								} else {
 									$text .= '|' . $field . '=' .
-											 $this->processValue( implode( $wgMendeleyTemplateFieldsMapDelimiter, $row[$property] ) ) .
+											 $this->processValue( $property, implode( $wgMendeleyTemplateFieldsMapDelimiter, $row[$property] ) ) .
 											 "\n";
 								}
 							} else {
@@ -110,7 +110,7 @@ class Mendeley {
 							$fieldName = str_replace( '+', '', $fieldName );
 							$appendProps[$fieldName] = $field;
 						} else {
-							$text .= '|' . $field . '=' . $this->processValue( $row[$property] ) . "\n";
+							$text .= '|' . $field . '=' . $this->processValue( $property, $row[$property] ) . "\n";
 						}
 					}
 
@@ -124,7 +124,7 @@ class Mendeley {
 								}
 								return '';
 							}, $pattern );
-							$text .= '|' . $k . '=' . $this->processValue( $value ) . "\n";
+							$text .= '|' . $k . '=' . $this->processValue( $property, $value ) . "\n";
 						}
 					}
 
@@ -201,9 +201,9 @@ class Mendeley {
 		return null;
 	}
 
-	private function processValue( $value ) {
-		global $wgMendeleyReplaceUnderscores;
-		if ( $wgMendeleyReplaceUnderscores ) {
+	private function processValue( $property, $value ) {
+		global $wgMendeleyReplaceUnderscoresFields;
+		if ( count($wgMendeleyReplaceUnderscoresFields) && in_array($property, $wgMendeleyReplaceUnderscoresFields) ) {
 			$value = str_replace( '_', ' ', $value );
 		}
 		return $value;
