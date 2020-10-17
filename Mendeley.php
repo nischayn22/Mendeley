@@ -204,7 +204,7 @@ class Mendeley {
 		return preg_replace_callback(
 			"/\{\{(([^\{\}]*|(?R))*)\}\}/",
 			function( $matches ) use ( $wgMendeleyTemplate, $replacement ) {
-				if ( strpos($matches[0], "{{".$wgMendeleyTemplate) === 0 ) {
+				if ( strpos($matches[0], "{{".$wgMendeleyTemplate."\n") === 0 ) {
 					return $replacement;
 				}
 				return $matches[0];
