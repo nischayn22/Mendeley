@@ -27,6 +27,7 @@ class Mendeley {
 			   $wgMendeleyTemplateFieldsMapDelimiter,
 			   $wgMendeleyPageFormula,
 			   $wgMendeleyFieldValuesDelimiter,
+			   $wgMendeleyOverwriteTemplateOnly,
 			   $wgMendeleyAppendFieldValuesDelimiter;
 
 		$pages = 0;
@@ -171,7 +172,17 @@ class Mendeley {
 
 					$title = Title::newFromText( $pagename );
 					$wikiPage = new WikiPage( $title );
+
+					if ( $wgMendeleyOverwriteTemplateOnly && $wgMendeleyTemplate && $wikiPage->exists() ) {
+						$curContent = $wikiPage->getContent()->getWikitextForTransclusion();
+						if ( strpos( $curContent, '{{' . $wgMendeleyTemplate ) !== false ) {
+							// Replace only the template contents
+							$text = $this->replaceTemplateBraces( $curContent, $text );
+						}
+					}
+
 					$content = ContentHandler::makeContent( $text, $title );
+
 					$wikiPage->doEditContent( $content, "Importing document found in group" );
 					$pagesLinks[] = $title;
 					$pages ++;
@@ -186,6 +197,20 @@ class Mendeley {
 		}
 
 		return $pagesLinks;
+	}
+
+	private function replaceTemplateBraces( $text, $replacement ) {
+		global $wgMendeleyTemplate;
+		return preg_replace_callback(
+			"/\{\{(([^\{\}]*|(?R))*)\}\}/",
+			function( $matches ) use ( $wgMendeleyTemplate, $replacement ) {
+				if ( strpos($matches[0], "{{".$wgMendeleyTemplate) === 0 ) {
+					return $replacement;
+				}
+				return $matches[0];
+			},
+			$text
+		);
 	}
 
 	private function getPaginationLink( array $responseHeaders, $rel = 'next' ) {

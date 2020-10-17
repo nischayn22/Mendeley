@@ -40,7 +40,8 @@
 		"MendeleyRedirectUrl": null,
 		"MendeleyFieldValuesDelimiter": " ",
 		"MendeleyAppendFieldValuesDelimiter": "/",
-		"MendeleyReplaceUnderscores": false
+		"MendeleyReplaceUnderscores": false,
+		"MendeleyOverwriteTemplateOnly": false
 	},
 	"ExtensionMessagesFiles": {
 		"MendeleyHooksMagic": "Mendeley.i18n.magic.php"
