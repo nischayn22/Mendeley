@@ -39,7 +39,7 @@ class Mendeley {
 			"?access_token=$access_token" .
 			"&group_id=$group_id" .
 			"&view=all" .
-			"&limit=50",
+			"&limit=500",
 			'',
 			array(),
 			$responseHeaders
@@ -59,7 +59,7 @@ class Mendeley {
 				"?access_token=$access_token" .
 				"&group_id=$group_id" .
 				"&view=all" .
-				"&limit=50",
+				"&limit=500",
 				'',
 				array(),
 				$responseHeaders
