@@ -21,7 +21,7 @@ class Mendeley {
 	 * @throws MWContentSerializationException
 	 * @throws MWException
 	 */
-	public function importGroup( $group_id ) {
+	public function importGroup( $group_id, $actorId = null ) {
 		global $wgMendeleyTemplate,
 			   $wgMendeleyTemplateFields,
 			   $wgMendeleyTemplateFieldsMapDelimiter,
@@ -185,7 +185,13 @@ class Mendeley {
 
 					// Edit target page or push job into queue
 					if ( $wgMendeleyUseJobs ) {
-						$job = new MendeleyImportJob( $title, [ 'text' => $text ] );
+						$job = new MendeleyImportJob( $title,
+							[
+								'text' => $text,
+								'id' => $result_row['id'],
+								'actor_id' => $actorId
+							]
+						);
 						JobQueueGroup::singleton()->push( $job );
 					} else {
 						$content = ContentHandler::makeContent( $text, $title );

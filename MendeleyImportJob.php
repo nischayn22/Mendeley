@@ -20,7 +20,13 @@ class MendeleyImportJob extends Job {
 	private function editPage() {
 		$wikiPage = new WikiPage( $this->title );
 		$content = ContentHandler::makeContent( $this->params[ 'text' ], $this->title );
-		return $wikiPage->doEditContent( $content, "Importing document found in group (job)" );
+		return $wikiPage->doEditContent(
+			$content,
+			"Importing document found in group (job)",
+			0,
+			false,
+			$this->params['actor_id'] ? User::newFromId( $this->params['actor_id'] ) : null
+		);
 	}
 
 }

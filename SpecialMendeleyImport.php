@@ -40,7 +40,7 @@ class SpecialMendeleyImport extends SpecialPage {
 
 	public function handleImport( $group_id ) {
 		global $wgMendeleyUseJobs;
-		$pages = Mendeley::getInstance()->importGroup( $group_id );
+		$pages = Mendeley::getInstance()->importGroup( $group_id, $this->getUser()->getId() );
 		$out = $this->getOutput();
 		if ( count($pages) > 0 ) {
 			$out->addHTML( Html::openElement('ul') );
