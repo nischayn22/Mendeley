@@ -28,7 +28,9 @@ class Mendeley {
 			   $wgMendeleyPageFormula,
 			   $wgMendeleyFieldValuesDelimiter,
 			   $wgMendeleyOverwriteTemplateOnly,
-			   $wgMendeleyAppendFieldValuesDelimiter;
+			   $wgMendeleyAppendFieldValuesDelimiter,
+			   $wgMendeleyImportPageLimit,
+			   $wgMendeleyUseJobs;
 
 		$pages = 0;
 		$pagesLinks = [];
@@ -39,7 +41,7 @@ class Mendeley {
 			"?access_token=$access_token" .
 			"&group_id=$group_id" .
 			"&view=all" .
-			"&limit=500",
+			"&limit=$wgMendeleyImportPageLimit",
 			'',
 			array(),
 			$responseHeaders
@@ -173,7 +175,7 @@ class Mendeley {
 					$title = Title::newFromText( $pagename );
 					$wikiPage = new WikiPage( $title );
 
-					if ( $wgMendeleyOverwriteTemplateOnly && $wgMendeleyTemplate && $wikiPage->exists() ) {
+					if ( $wgMendeleyOverwriteTemplateOnly && $wgMendeleyTemplate && $wikiPage->exists() && $wikiPage->getContent() ) {
 						$curContent = $wikiPage->getContent()->getWikitextForTransclusion();
 						if ( strpos( $curContent, '{{' . $wgMendeleyTemplate ) !== false ) {
 							// Replace only the template contents
@@ -181,15 +183,27 @@ class Mendeley {
 						}
 					}
 
-					$content = ContentHandler::makeContent( $text, $title );
+					// Edit target page or push job into queue
+					if ( $wgMendeleyUseJobs ) {
+						$job = new MendeleyImportJob( $title, [ 'text' => $text ] );
+						JobQueueGroup::singleton()->push( $job );
+					} else {
+						$content = ContentHandler::makeContent( $text, $title );
+						$wikiPage->doEditContent( $content, "Importing document found in group" );
+					}
 
-					$wikiPage->doEditContent( $content, "Importing document found in group" );
 					$pagesLinks[] = $title;
 					$pages ++;
 				}
 				$nextLink = $this->getPaginationLink( $responseHeaders );
+				// @TODO: remove me!
 				if ( $nextLink ) {
 					$result = $this->httpRequest( $nextLink, '', array(), $responseHeaders );
+					if( !$result ) {
+						break;
+					}
+					// Decode the result and loop
+					$result = json_decode( $result, true );
 				} else {
 					break;
 				}
@@ -287,7 +301,13 @@ class Mendeley {
 			}
 			return $this->getToken( 'access' );
 		}
-		$result = $this->httpRequest( "https://api.mendeley.com/oauth/token", "grant_type=client_credentials&scope=all&client_id=$wgMendeleyConsumerKey&client_secret=$wgMendeleyConsumerSecret" );
+		$result = $this->httpRequest(
+			"https://api.mendeley.com/oauth/token",
+			"grant_type=client_credentials" .
+			"&scope=all" .
+			"&client_id=$wgMendeleyConsumerKey" .
+			"&client_secret=$wgMendeleyConsumerSecret"
+		);
 		return json_decode( $result )->access_token;
 	}
 

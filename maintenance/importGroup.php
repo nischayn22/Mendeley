@@ -18,6 +18,11 @@ class MendeleyImportGroupMaintenance extends Maintenance {
 	}
 
 	public function execute() {
+		global $wgMendeleyUseJobs;
+		// save jobs configuration, we do not want to use jobs in the maintenance script
+		// regardless of the setting
+		$oldGlobal = $wgMendeleyUseJobs;
+		$wgMendeleyUseJobs = false;
 		$this->output('Starting import..');
 		$mendeley = Mendeley::getInstance();
 		$result = $mendeley->importGroup( $this->getOption( 'group_id') );
@@ -25,6 +30,8 @@ class MendeleyImportGroupMaintenance extends Maintenance {
 			$this->output("\nImported '".$page->getFullText()."' -> ".$page->getFullURL());
 		}
 		$this->output('Done!');
+		// restore
+		$wgMendeleyUseJobs = $oldGlobal;
 	}
 }
 

@@ -26,7 +26,8 @@
 		"PFMendeleyInput": "PF_MendeleyInput.php",
 		"PFMendeleyInputDOI": "PFMendeleyInputDOI.php",
 		"PFMendeleyAutocompleteAPI": "PFMendeleyAutocompleteAPI.php",
-		"Mendeley": "Mendeley.php"
+		"Mendeley": "Mendeley.php",
+		"MendeleyImportJob": "MendeleyImportJob.php"
 	},
 	"config": {
 		"MendeleyConsumerKey": null,
@@ -41,7 +42,9 @@
 		"MendeleyFieldValuesDelimiter": " ",
 		"MendeleyAppendFieldValuesDelimiter": "/",
 		"MendeleyReplaceUnderscores": false,
-		"MendeleyOverwriteTemplateOnly": false
+		"MendeleyOverwriteTemplateOnly": false,
+		"MendeleyImportPageLimit": 500,
+		"MendeleyUseJobs": false
 	},
 	"ExtensionMessagesFiles": {
 		"MendeleyHooksMagic": "Mendeley.i18n.magic.php"
@@ -71,6 +74,9 @@
 	"ResourceFileModulePaths": {
 		"localBasePath": "",
 		"remoteExtPath": "Mendeley"
+	},
+	"JobClasses": {
+		"MendeleyImportJob": "MendeleyImportJob"
 	},
 	"manifest_version": 1
 }

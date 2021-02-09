@@ -39,6 +39,7 @@ class SpecialMendeleyImport extends SpecialPage {
 	}
 
 	public function handleImport( $group_id ) {
+		global $wgMendeleyUseJobs;
 		$pages = Mendeley::getInstance()->importGroup( $group_id );
 		$out = $this->getOutput();
 		if ( count($pages) > 0 ) {
@@ -47,7 +48,13 @@ class SpecialMendeleyImport extends SpecialPage {
 				$out->addHTML( Html::rawElement( 'li', array(), Linker::link($pl) ) );
 			}
 			$out->addHTML( Html::closeElement('ul') );
-			$out->addHTML( "Successfully created/updated ".count($pages)." pages" );
+			if ( $wgMendeleyUseJobs ) {
+				$out->addHTML( "Successfully scheduled " . count( $pages ) . " pages for import. " .
+							   "Please wait for the jobs to be processed or run runJobs.php maintenance " .
+							   "script by hand." );
+			} else {
+				$out->addHTML( "Successfully created/updated " . count( $pages ) . " pages" );
+			}
 		} else {
 			$out->addHTML( "Invalid result" );
 		}
