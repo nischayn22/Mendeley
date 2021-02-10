@@ -16,12 +16,14 @@ class Mendeley {
 	 * Imports a group from Mendeley
 	 *
 	 * @param string $group_id
+	 * @param null $actorId
+	 * @param bool $dryRun
 	 *
 	 * @return Title[]
 	 * @throws MWContentSerializationException
 	 * @throws MWException
 	 */
-	public function importGroup( $group_id, $actorId = null ) {
+	public function importGroup( $group_id, $actorId = null, $dryRun = false ) {
 		global $wgMendeleyTemplate,
 			   $wgMendeleyTemplateFields,
 			   $wgMendeleyTemplateFieldsMapDelimiter,
@@ -183,19 +185,22 @@ class Mendeley {
 						}
 					}
 
-					// Edit target page or push job into queue
-					if ( $wgMendeleyUseJobs ) {
-						$job = new MendeleyImportJob( $title,
-							[
-								'text' => $text,
-								'id' => $result_row['id'],
-								'actor_id' => $actorId
-							]
-						);
-						JobQueueGroup::singleton()->push( $job );
-					} else {
-						$content = ContentHandler::makeContent( $text, $title );
-						$wikiPage->doEditContent( $content, "Importing document found in group" );
+					// Only modify content if this is not a dry-run
+					if( !$dryRun ) {
+						// Edit target page or push job into queue
+						if ( $wgMendeleyUseJobs ) {
+							$job = new MendeleyImportJob(
+								$title, [
+									'text' => $text,
+									'id' => $result_row['id'],
+									'actor_id' => $actorId
+								]
+							);
+							JobQueueGroup::singleton()->push( $job );
+						} else {
+							$content = ContentHandler::makeContent( $text, $title );
+							$wikiPage->doEditContent( $content, "Importing document found in group" );
+						}
 					}
 
 					$pagesLinks[] = $title;
