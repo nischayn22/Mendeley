@@ -41,8 +41,8 @@ class MendeleyWipeGroupMaintenance extends Maintenance {
 					'delete',
 					true
 				);
+				$this->output( "\nWiped " . $page->getFullText() );
 			}
-			$this->output( "\nWiped '" . $page->getFullText() );
 		}
 		$this->output( "\n" );
 		$this->output( 'Done!' );

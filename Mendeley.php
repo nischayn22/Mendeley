@@ -63,7 +63,7 @@ class Mendeley {
 				"?access_token=$access_token" .
 				"&group_id=$group_id" .
 				"&view=all" .
-				"&limit=500",
+				"&limit=$wgMendeleyImportPageLimit",
 				'',
 				array(),
 				$responseHeaders
