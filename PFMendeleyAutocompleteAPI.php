@@ -15,12 +15,14 @@ class PFMendeleyAutocompleteAPI extends ApiBase {
 	public function execute() {
 		$term = urlencode( $this->getMain()->getVal('term') );
 
-		$access_token = MendeleyHooks::getAccessToken();
+		$mendeley = Mendeley::getInstance();
 
-		$result = MendeleyHooks::httpRequest( "https://api.mendeley.com/search/catalog?query==$term&access_token=$access_token&view=all&limit=20" );
+		$access_token = $mendeley->getAccessToken();
+
+		$result = $mendeley->httpRequest( "https://api.mendeley.com/search/catalog?query==$term&access_token=$access_token&view=all&limit=20" );
 		$result = json_decode( $result, true );
 		if ( empty( $result ) ) {
-			$result = MendeleyHooks::httpRequest( "https://api.mendeley.com/catalog?doi=". $term ."&access_token=$access_token&view=all" );
+			$result = $mendeley->httpRequest( "https://api.mendeley.com/catalog?doi=". $term ."&access_token=$access_token&view=all" );
 			$result = json_decode( $result, true );
 		}
 
