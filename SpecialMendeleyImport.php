@@ -14,6 +14,7 @@ class SpecialMendeleyImport extends SpecialPage {
 		$out = $this->getOutput();
 
 		$group_id = $request->getVal( "mendeley_group_id", $par );
+		$dry = $request->getCheck( 'mendeley_dry' );
 
 		$formOpts = [
 			'id' => 'menedeley_import',
@@ -25,7 +26,13 @@ class SpecialMendeleyImport extends SpecialPage {
 		$out->addHTML(
 			Html::openElement( 'form', $formOpts ) . "<br>" .
 			Html::label( "Enter Mendeley Group ID","", array( "for" => "mendeley_group_id" ) ) . "<br>" .
-			Html::element( 'input', array( "id" => "mendeley_group_id", "name" => "mendeley_group_id", "type" => "text", "value" => $group_id ) ) . "<br><br>"
+			Html::element( 'input', array( "id" => "mendeley_group_id", "name" => "mendeley_group_id", "type" => "text", "value" => $group_id, "size" => 100 ) ) . "<br>" .
+			Html::rawElement(
+				'p',
+				array(),
+				Html::element( 'input', array( "id" => "mendeley_dry", "name" => "mendeley_dry", "type" => "checkbox", "value" => "1", "checked" => "checked" ) ) .
+				Html::element( 'label', array( "for" => "mendeley_dry" ), "Dry run" )
+			) . "<br><br>"
 		);
 
 		$out->addHTML(
@@ -34,13 +41,13 @@ class SpecialMendeleyImport extends SpecialPage {
 		);
 
 		if ( $group_id ) {
-			$this->handleImport( $group_id );
+			$this->handleImport( $group_id, $dry );
 		}
 	}
 
-	public function handleImport( $group_id ) {
+	public function handleImport( $group_id, $dry = false ) {
 		global $wgMendeleyUseJobs;
-		$pages = Mendeley::getInstance()->importGroup( $group_id, $this->getUser()->getId() );
+		$pages = Mendeley::getInstance()->importGroup( $group_id, $this->getUser()->getId(), $dry );
 		$out = $this->getOutput();
 		if ( count($pages) > 0 ) {
 			$out->addHTML( Html::openElement('ul') );
@@ -48,12 +55,17 @@ class SpecialMendeleyImport extends SpecialPage {
 				$out->addHTML( Html::rawElement( 'li', array(), Linker::link($pl) ) );
 			}
 			$out->addHTML( Html::closeElement('ul') );
-			if ( $wgMendeleyUseJobs ) {
-				$out->addHTML( "Successfully scheduled " . count( $pages ) . " pages for import. " .
-							   "Please wait for the jobs to be processed or run runJobs.php maintenance " .
-							   "script by hand." );
+			if ( $dry ) {
+				$out->addHTML( "This was a dry run, nothing will be imported" );
 			} else {
-				$out->addHTML( "Successfully created/updated " . count( $pages ) . " pages" );
+				if ( $wgMendeleyUseJobs ) {
+					$out->addHTML(
+						"Successfully scheduled " . count( $pages ) . " pages for import. " .
+						"Please wait for the jobs to be processed or run runJobs.php maintenance " . "script by hand."
+					);
+				} else {
+					$out->addHTML( "Successfully created/updated " . count( $pages ) . " pages" );
+				}
 			}
 		} else {
 			$out->addHTML( "Invalid result" );
